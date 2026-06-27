@@ -19,10 +19,11 @@ Subagent (general-purpose):
 
     | Category | What to Look For |
     |----------|------------------|
-    | Completeness | TODOs, placeholders, incomplete tasks, missing steps |
+    | Completeness | TODOs, placeholders, vague requirements, tasks missing a contract / acceptance criteria / constraints |
     | Spec Alignment | Plan covers spec requirements, no major scope creep |
-    | Task Decomposition | Tasks have clear boundaries, steps are actionable |
-    | Buildability | Could an engineer follow this plan without getting stuck? |
+    | Task Decomposition | Tasks have clear boundaries; each is a commit-sized deliverable; acceptance criteria are testable |
+    | Altitude | Does any task contain implementation code, test code, or shell commands? Plans specify contracts, not implementations — flag leaked code. |
+    | Buildability | Could a skilled engineer implement to these contracts and acceptance criteria without having to guess the requirements? |
 
     ## Calibration
 
@@ -31,7 +32,8 @@ Subagent (general-purpose):
     Minor wording, stylistic preferences, and "nice to have" suggestions are not.
 
     Approve unless there are serious gaps — missing requirements from the spec,
-    contradictory steps, placeholder content, or tasks so vague they can't be acted on.
+    contradictory tasks, placeholder content, leaked implementation code, or
+    tasks so vague they can't be acted on.
 
     ## Output Format
 

@@ -7,9 +7,21 @@ description: Use when you have a spec or requirements for a multi-step task, bef
 
 ## Overview
 
-Write comprehensive implementation plans assuming the engineer has zero context for our codebase and questionable taste. Document everything they need to know: which files to touch for each task, code, testing, docs they might need to check, how to test it. Give them the whole plan as bite-sized tasks. DRY. YAGNI. TDD. Frequent commits.
+Write implementation plans that specify **what** to build, **where** it goes,
+and **how to know it's done**. Leave **how** to build it to the executor.
 
-Assume they are a skilled developer, but know almost nothing about our toolset or problem domain. Assume they don't know good test design very well.
+Assume the engineer reading this is a skilled developer who has zero context
+for our codebase and questionable taste. They need: architecture rationale,
+exact file paths, type contracts, acceptance criteria, constraints, and
+ordering. They do NOT need function bodies, test code, shell commands, or
+step-by-step TDD instructions — the executor owns those. DRY. YAGNI. TDD.
+Frequent commits.
+
+**Why no code:** the planner writes blind — no file is open, so any code is a
+guess encoded as a decision. The executor has the real code in context and is
+the one who should write it. Code in a plan also duplicates what will live in
+the codebase, drowns the signal (what/why/done) in implementation noise, and
+makes the plan expensive to write and review.
 
 **Announce at start:** "I'm using the writing-plans skill to create the implementation plan."
 
@@ -35,21 +47,14 @@ This structure informs the task decomposition. Each task should produce self-con
 
 ## Task Right-Sizing
 
-A task is the smallest unit that carries its own test cycle and is worth a
-fresh reviewer's gate. When drawing task boundaries: fold setup,
-configuration, scaffolding, and documentation steps into the task whose
-deliverable needs them; split only where a reviewer could meaningfully
-reject one task while approving its neighbor. Each task ends with an
-independently testable deliverable.
-
-## Bite-Sized Task Granularity
-
-**Each step is one action (2-5 minutes):**
-- "Write the failing test" - step
-- "Run it to make sure it fails" - step
-- "Implement the minimal code to make the test pass" - step
-- "Run the tests and make sure they pass" - step
-- "Commit" - step
+A task is a **commit-sized deliverable**: one logical unit of work that
+leaves the codebase in a valid state and is worth a fresh reviewer's gate.
+Typical size: one module or one adapter. When drawing task boundaries: fold
+setup, configuration, scaffolding, and documentation into the task whose
+deliverable needs them; split only where a reviewer could meaningfully reject
+one task while approving its neighbor. If a task needs more than ~3 files
+created, consider splitting it. Each task ends with an independently testable
+deliverable.
 
 ## Plan Document Header
 
@@ -66,6 +71,8 @@ independently testable deliverable.
 
 **Tech Stack:** [Key technologies/libraries]
 
+**Design doc:** [path to design doc, if one exists]
+
 ## Global Constraints
 
 [The spec's project-wide requirements — version floors, dependency limits,
@@ -73,13 +80,24 @@ naming and copy rules, platform requirements — one line each, with exact
 values copied verbatim from the spec. Every task's requirements implicitly
 include this section.]
 
+## Rationale
+
+[Why these tasks, in this order. What dependency structure drives the
+sequencing. Which task groups can be parallelized and why.]
+
 ---
 ```
 
 ## Task Structure
 
+A plan task names a deliverable and its contract. It does not contain the
+implementation — the executor designs and writes that against the acceptance
+criteria, following TDD.
+
 ````markdown
 ### Task N: [Component Name]
+
+**Why:** [1-2 sentences connecting this task to the larger plan]
 
 **Files:**
 - Create: `exact/path/to/file.py`
@@ -88,68 +106,84 @@ include this section.]
 
 **Interfaces:**
 - Consumes: [what this task uses from earlier tasks — exact signatures]
-- Produces: [what later tasks rely on — exact function names, parameter
-  and return types. A task's implementer sees only their own task; this
-  block is how they learn the names and types neighboring tasks use.]
+- Produces: [this task's public contract — the surface later tasks may rely
+  on, stated even when this is a leaf task nothing downstream consumes:
+  exact function names, parameter and return types, dataclass/protocol
+  shapes. A task's implementer sees only their own task; this block is how
+  they learn the names and types neighboring tasks use. A small illustrative
+  fragment is allowed HERE only to pin an exact data shape or a worked
+  input→output example — never a function body.]
 
-- [ ] **Step 1: Write the failing test**
+**Acceptance:**
+- [Observable behaviors that must be true when done]
+- [Edge cases and error conditions to test]
+- [Performance or stability requirements, if any]
 
-```python
-def test_specific_behavior():
-    result = function(input)
-    assert result == expected
-```
+These describe WHAT to test, not the test code. The executor turns them into
+failing tests, then implements to pass them.
 
-- [ ] **Step 2: Run test to verify it fails**
-
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: FAIL with "function not defined"
-
-- [ ] **Step 3: Write minimal implementation**
-
-```python
-def function(input):
-    return expected
-```
-
-- [ ] **Step 4: Run test to verify it passes**
-
-Run: `pytest tests/path/test.py::test_name -v`
-Expected: PASS
-
-- [ ] **Step 5: Commit**
-
-```bash
-git add tests/path/test.py src/path/file.py
-git commit -m "feat: add specific feature"
-```
+**Constraints:**
+- [Architectural rules: port compliance, layer boundaries]
+- [Stability guarantees: "this value is a cache key"]
+- [Compatibility: "must work with existing X adapter"]
 ````
+
+### Parallel Task Groups
+
+Default ordering is sequential. Mark independent tasks explicitly:
+
+```markdown
+### Tasks N–M (parallel): [Group Description]
+
+> These tasks are independent and can be executed in parallel.
+> All depend on: Task X, Task Y.
+
+### Task N: ...
+### Task N+1: ...
+```
 
 ## No Placeholders
 
-Every step must contain the actual content an engineer needs. These are **plan failures** — never write them:
+A plan task must give the executor everything they need to build the right
+thing — and nothing that does their job for them. Both halves below are
+**plan failures** — never write them:
+
+**Too little — vague where the plan must be exact:**
 - "TBD", "TODO", "implement later", "fill in details"
 - "Add appropriate error handling" / "add validation" / "handle edge cases"
-- "Write tests for the above" (without actual test code)
-- "Similar to Task N" (repeat the code — the engineer may be reading tasks out of order)
-- Steps that describe what to do without showing how (code blocks required for code steps)
-- References to types, functions, or methods not defined in any task
+  (name the cases in Acceptance instead)
+- "Similar to Task N" (restate the contract — the engineer may read tasks out
+  of order)
+- References to types, functions, or methods not defined in any task's
+  Interfaces block
+
+**Too much — code where a contract belongs:**
+- Function or method bodies (the executor writes the implementation)
+- Test code or test functions (Acceptance says what to test, not how)
+- Shell commands — no pytest, git, or build commands
+- A red-green-refactor step sequence (the executing skill owns the workflow)
+- Commit messages (the executor writes these from what they built)
+
+The one exception: a small fragment in an Interfaces **Produces** block to pin
+an exact data shape, signature, or worked example — never an implementation.
 
 ## Remember
 - Exact file paths always
-- Complete code in every step — if a step changes code, show the code
-- Exact commands with expected output
+- Contracts, not code
+- Acceptance criteria, not test implementations
+- Constraints capture the *why* — what the executor can't safely change
 - DRY, YAGNI, TDD, frequent commits
+- Reference the design doc when one exists
 
 ## Self-Review
 
 After writing the complete plan, look at the spec with fresh eyes and check the plan against it. This is a checklist you run yourself — not a subagent dispatch.
 
-**1. Spec coverage:** Skim each section/requirement in the spec. Can you point to a task that implements it? List any gaps.
+**1. Spec coverage:** Skim each section/requirement in the spec. Can you point to a task whose Acceptance criteria cover it? List any gaps.
 
-**2. Placeholder scan:** Search your plan for red flags — any of the patterns from the "No Placeholders" section above. Fix them.
+**2. Altitude scan:** Search your plan for both failure modes in "No Placeholders" above — vague prose AND leaked implementation code (function bodies, test code, shell commands). Fix them.
 
-**3. Type consistency:** Do the types, method signatures, and property names you used in later tasks match what you defined in earlier tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
+**3. Interface consistency:** Does every `Consumes` entry match a `Produces` from an earlier task? Do the names and types line up across tasks? A function called `clearLayers()` in Task 3 but `clearFullLayers()` in Task 7 is a bug.
 
 If you find issues, fix them inline. No need to re-review — just fix and move on. If you find a spec requirement with no task, add the task.
 
