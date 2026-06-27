@@ -100,7 +100,15 @@ conflicts that only emerge from implementation.
 
 Use the least powerful model that can handle each role to conserve cost and increase speed.
 
-**Mechanical implementation tasks** (isolated functions, clear specs, 1-2 files): use a fast, cheap model. Most implementation tasks are mechanical when the plan is well-specified.
+**Implementers design from a contract, not transcribe code.** The plan gives a
+contract and acceptance criteria; the implementer writes the implementation in
+real file context. That design judgment moved out of the planner and into each
+implementer — the deliberate trade for code written where the code actually
+lives — so mid-tier is the floor for implementers. The cheapest tier is
+reserved for trivial mechanical fixes (a rename, a config bump) where there is
+no design to do.
+
+**Standard implementation tasks** (a single contract, clear acceptance, 1-2 files): use a mid-tier model.
 
 **Integration and judgment tasks** (multi-file coordination, pattern matching, debugging): use a standard model.
 
@@ -118,14 +126,13 @@ most expensive — which silently defeats this section.
 
 **Turn count beats token price.** Wall-clock and context cost scale with how
 many turns a subagent takes, and the cheapest models routinely take 2-3× the
-turns on multi-step work — costing more overall. Use a mid-tier model as the
-floor for reviewers and for implementers working from prose descriptions.
-When the task's plan text contains the complete code to write, the
-implementation is transcription plus testing: use the cheapest tier for
-that implementer. Single-file mechanical fixes also take the cheapest tier.
+turns on multi-step work — costing more overall. Mid-tier is the floor for
+reviewers and for implementers: every implementer now works from a contract,
+not finished code. Reserve the cheapest tier for trivial single-file
+mechanical fixes (a rename, a config bump) where there is no design to do.
 
 **Task complexity signals (implementation tasks):**
-- Touches 1-2 files with a complete spec → cheap model
+- Narrow single-contract task with exhaustive acceptance criteria → mid-tier model
 - Touches multiple files with integration concerns → standard model
 - Requires design judgment or broad codebase understanding → most capable model
 

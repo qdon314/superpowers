@@ -79,6 +79,11 @@ Subagent (general-purpose):
 
     Compare the diff against What Was Requested:
 
+    The executor designs the implementation. Judge it against the contract,
+    acceptance criteria, and constraints — not against how you would have
+    written it. A different-but-valid implementation that satisfies the
+    contract is not a finding.
+
     - **Missing:** requirements they skipped, missed, or claimed without
       implementing
     - **Extra:** features that weren't requested, over-engineering, unneeded
