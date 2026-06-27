@@ -31,10 +31,14 @@ Subagent (general-purpose):
 
     ## Your Job
 
+    The task gives you a contract and acceptance criteria, not an
+    implementation — you design and write the code.
+
     Once you're clear on requirements:
-    1. Implement exactly what the task specifies
-    2. Write tests (following TDD if task says to)
-    3. Verify implementation works
+    1. Write tests first (TDD): turn the task's acceptance criteria into
+       failing tests
+    2. Implement to make them pass
+    3. Verify the acceptance criteria hold
     4. Commit your work
     5. Self-review (see below)
     6. Report back
@@ -98,7 +102,7 @@ Subagent (general-purpose):
 
     **Testing:**
     - Do tests actually verify behavior (not just mock behavior)?
-    - Did I follow TDD if required?
+    - Did I follow TDD (acceptance criteria → failing test → implement)?
     - Are tests comprehensive?
     - Is the test output pristine (no stray warnings or noise)?
 
@@ -115,7 +119,7 @@ Subagent (general-purpose):
     Write your full report to [REPORT_FILE]:
     - What you implemented (or what you attempted, if blocked)
     - What you tested and test results
-    - **TDD Evidence** (if TDD was required for this task):
+    - **TDD Evidence:**
       - RED: command run, relevant failing output before implementation, and why the failure was expected
       - GREEN: command run and relevant passing output after implementation
     - Files changed

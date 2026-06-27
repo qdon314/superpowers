@@ -23,11 +23,19 @@ Load plan, review critically, execute all tasks, report when complete.
 
 ### Step 2: Execute Tasks
 
+The plan gives each task a contract and acceptance criteria, not a step
+sequence — you own the implementation and the TDD loop.
+
 For each task:
 1. Mark as in_progress
-2. Follow each step exactly (plan has bite-sized steps)
-3. Run verifications as specified
+2. Implement the task to its contract and acceptance criteria, following TDD
+   (red-green-refactor): turn the acceptance criteria into failing tests,
+   then implement to make them pass
+3. Verify the acceptance criteria hold
 4. Mark as completed
+
+**REQUIRED SUB-SKILL:** Use superpowers:test-driven-development for the
+per-task red-green-refactor discipline.
 
 ### Step 3: Complete Development
 
@@ -56,7 +64,7 @@ After all tasks complete and verified:
 
 ## Remember
 - Review plan critically first
-- Follow plan steps exactly
+- Implement each task to its contract and acceptance criteria, following TDD
 - Don't skip verifications
 - Reference skills when plan says to
 - Stop when blocked, don't guess
@@ -67,4 +75,5 @@ After all tasks complete and verified:
 **Required workflow skills:**
 - **superpowers:using-git-worktrees** - Ensures isolated workspace (creates one or verifies existing)
 - **superpowers:writing-plans** - Creates the plan this skill executes
+- **superpowers:test-driven-development** - The per-task red-green-refactor discipline the executor owns
 - **superpowers:finishing-a-development-branch** - Complete development after all tasks
